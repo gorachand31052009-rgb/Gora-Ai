@@ -1,53 +1,54 @@
 name: GORA AI APK Builder
 
 on:
-workflow_dispatch:
-push:
-branches:
-- main
+  workflow_dispatch:
+  push:
+    branches:
+      - main
 
 permissions:
-contents: read
+  contents: read
 
 jobs:
-build:
-runs-on: ubuntu-latest
+  build:
+    runs-on: ubuntu-latest
 
-steps:
-  - name: Checkout
-    uses: actions/checkout@v4
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-  - name: Setup Java
-    uses: actions/setup-java@v4
-    with:
-      distribution: temurin
-      java-version: '17'
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
 
-  - name: Setup Android SDK
-    uses: android-actions/setup-android@v3
-    with:
-      accept-android-sdk-licenses: false
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          accept-android-sdk-licenses: true
+          log-accepted-android-sdk-licenses: false
+          packages: platform-tools
 
-  - name: Accept Android Licenses
-    run: |
-      yes | sdkmanager --licenses
-      sdkmanager "platforms;android-35" "build-tools;35.0.0"
+      - name: Install Android Packages
+        run: |
+          sdkmanager "platforms;android-35" "build-tools;35.0.0"
 
-  - name: Install Gradle
-    uses: gradle/actions/setup-gradle@v4
-    with:
-      gradle-version: '8.9'
+      - name: Install Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
 
-  - name: Extract Project
-    run: |
-      unzip -q GORA-AI-starter-project.zip -d /tmp/gora
-      cp -R /tmp/gora/. .
+      - name: Extract Project
+        run: |
+          unzip -q GORA-AI-starter-project.zip -d /tmp/gora
+          cp -R /tmp/gora/. .
 
-  - name: Build APK
-    run: gradle assembleDebug
+      - name: Build APK
+        run: gradle assembleDebug
 
-  - name: Upload APK
-    uses: actions/upload-artifact@v4
-    with:
-      name: GORA-AI-APK
-      path: app/build/outputs/apk/debug/app-debug.apk
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: GORA-AI-APK
+          path: app/build/outputs/apk/debug/app-debug.apk
